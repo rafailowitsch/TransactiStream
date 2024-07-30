@@ -1,0 +1,10 @@
+postgres:
+  host:     localhost
+  port:     5435
+  dbname:   transactions
+  user: postgres
+  password: password
+
+http:
+  host:         localhost
+  port:         8009

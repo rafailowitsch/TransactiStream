@@ -2,8 +2,10 @@ package postgres
 
 import (
 	"TransactiStream/internal/domain"
+	"TransactiStream/internal/logger"
 	"context"
 	"github.com/jackc/pgx/v5"
+	"time"
 )
 
 type Postgres struct {
@@ -18,11 +20,20 @@ func NewPostgres(db *pgx.Conn) *Postgres {
 
 func (p *Postgres) Create(ctx context.Context, trans *domain.Transaction) (string, error) {
 	var id string
+
+	if trans.Timestamp.IsZero() {
+		trans.Timestamp = time.Now()
+	}
+
 	err := p.db.QueryRow(ctx, `INSERT INTO transactions (user_id, amount, currency, created_at) VALUES ($1, $2, $3, $4) RETURNING id`,
 		trans.UserID, trans.Amount, trans.Currency, trans.Timestamp).Scan(&id)
 	if err != nil {
 		return "", err
 	}
+
+	trans.ID = id
+	logger.Infof("Repo: transaction created: %v", *trans)
+
 	return id, nil
 }
 
@@ -35,6 +46,8 @@ func (p *Postgres) Read(ctx context.Context, id string) (*domain.Transaction, er
 		return nil, err
 	}
 
+	logger.Infof("Repo: transaction readed: %v", *trans)
+
 	return trans, nil
 }
 
@@ -44,6 +57,8 @@ func (p *Postgres) Update(ctx context.Context, trans *domain.Transaction) error 
 	if err != nil {
 		return err
 	}
+
+	logger.Infof("Repo: transaction updated: %v", *trans)
 
 	return nil
 }
