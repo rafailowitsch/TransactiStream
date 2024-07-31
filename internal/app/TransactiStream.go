@@ -75,6 +75,7 @@ func Run(confDir string) {
 	handler := httphandler.NewHandler(repo, kafkaSrv)
 
 	http.HandleFunc("/transaction", handler.CreateTransaction)
+	http.HandleFunc("/transactions", handler.GetAllTransactions)
 	http.HandleFunc("/statistics", handler.GetStatistics)
 
 	srv := &http.Server{

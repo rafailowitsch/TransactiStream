@@ -1,16 +1,16 @@
 postgres:
-  host: localhost
-  port: 5435
+  host: postgres
+  port: 5432
   dbname: transactions
   user: postgres
   password: password
 
 http:
-  host: localhost
+  host: 0.0.0.0
   port: 8009
 
 kafka:
-  brokers: localhost:9092
+  brokers: kafka:9092
   writetopic: new_transactions
   readtopic: processed_transactions
   groupid: transactions

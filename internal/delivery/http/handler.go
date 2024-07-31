@@ -63,6 +63,23 @@ func (h *Handler) CreateTransaction(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 }
 
+func (h *Handler) GetAllTransactions(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	transactions, err := h.repo.ReadAll(ctx)
+	if err != nil {
+		logger.Errorf("Error reading all transactions: %v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	if err = json.NewEncoder(w).Encode(transactions); err != nil {
+		logger.Errorf("Error encoding transactions: %v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+
 func (h *Handler) GetStatistics(w http.ResponseWriter, r *http.Request) {
 	var (
 		stats *domain.Statistics
