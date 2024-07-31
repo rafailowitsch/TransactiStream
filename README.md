@@ -6,6 +6,12 @@
 docker-compose up --build -d
 ```
 
+В случае, если один из контейнеров не запуститься, выполните следующую команду:
+
+```sh
+docker-compose up -d
+```
+
 ## URL приложения
 
 ### POST: /transaction
@@ -58,7 +64,7 @@ curl 0.0.0.0:8009/statistics
   "total_transactions": 9,
   "failed_transactions": 2,
   "total_users": 1,
-  "average_processing_time": 125.4980748888889,
+  "average_processing_time": 25.124,
   "currencies": ["usdt"]
 }
 ```
