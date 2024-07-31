@@ -3,6 +3,7 @@ package app
 import (
 	"TransactiStream/internal/config"
 	httphandler "TransactiStream/internal/delivery/http"
+	kafkaService "TransactiStream/internal/delivery/kafka"
 	"TransactiStream/internal/logger"
 	"TransactiStream/internal/repository/postgres"
 	"context"
@@ -50,13 +51,41 @@ func Run(confDir string) {
 	logger.Info("Tables created")
 
 	repo := postgres.NewPostgres(conn)
-	handler := httphandler.NewHandler(repo)
+
+	logger.Infof("Kafka: {Brokers: %v, WriteTopic: %v, ReadTopic %v}",
+		cfg.Kafka.Brokers, cfg.Kafka.WriteTopic, cfg.Kafka.ReadTopic)
+
+	kafkaSrv := kafkaService.NewKafka(
+		[]string{cfg.Kafka.Brokers},
+		cfg.Kafka.WriteTopic,
+		cfg.Kafka.ReadTopic,
+		cfg.Kafka.GroupID,
+		repo,
+	)
+
+	for _, topic := range []string{cfg.Kafka.WriteTopic, cfg.Kafka.ReadTopic} {
+		err = kafkaService.CreateTopic([]string{cfg.Kafka.Brokers}, topic)
+		if err != nil {
+			logger.Errorf("Unable to create topic: %v", err)
+			os.Exit(1)
+		}
+	}
+	logger.Info("Topics created")
+
+	handler := httphandler.NewHandler(repo, kafkaSrv)
 
 	http.HandleFunc("/transaction", handler.CreateTransaction)
+	http.HandleFunc("/statistics", handler.GetStatistics)
 
 	srv := &http.Server{
 		Addr: cfg.HTTP.Host + ":" + cfg.HTTP.Port,
 	}
+
+	go func() {
+		if err := kafkaSrv.ReceiveMessages(ctx); err != nil {
+			logger.Errorf("Kafka consumer error: %v", err)
+		}
+	}()
 
 	go func() {
 		logger.Info("Server started")

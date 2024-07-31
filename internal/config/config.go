@@ -9,6 +9,7 @@ type (
 	Config struct {
 		Postgres PostgresConfig
 		HTTP     HTTPConfig
+		Kafka    KafkaConfig
 	}
 
 	PostgresConfig struct {
@@ -22,6 +23,13 @@ type (
 	HTTPConfig struct {
 		Host string
 		Port string
+	}
+
+	KafkaConfig struct {
+		Brokers    string
+		WriteTopic string
+		ReadTopic  string
+		GroupID    string
 	}
 )
 

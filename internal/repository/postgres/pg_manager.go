@@ -23,6 +23,7 @@ func CreateTables(ctx context.Context, conn pgx.Conn) error {
 		user_id VARCHAR(255) NOT NULL,
 		amount FLOAT NOT NULL,
 		currency VARCHAR(255) NOT NULL,
+		done BOOLEAN DEFAULT FALSE,
 		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 		processed_at TIMESTAMP,
 		processing_time INTERVAL

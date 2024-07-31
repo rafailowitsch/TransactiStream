@@ -1,6 +1,7 @@
 package http
 
 import (
+	kafkaService "TransactiStream/internal/delivery/kafka"
 	"TransactiStream/internal/domain"
 	"TransactiStream/internal/logger"
 	"context"
@@ -13,15 +14,18 @@ type Repository interface {
 	Read(ctx context.Context, id string) (*domain.Transaction, error)
 	Update(ctx context.Context, trans *domain.Transaction) error
 	ReadAll(ctx context.Context) ([]*domain.Transaction, error)
+	GetStatistics(ctx context.Context) (*domain.Statistics, error)
 }
 
 type Handler struct {
-	repo Repository
+	repo     Repository
+	kafkaSrv *kafkaService.KafkaService
 }
 
-func NewHandler(repo Repository) *Handler {
+func NewHandler(repo Repository, kafka *kafkaService.KafkaService) *Handler {
 	return &Handler{
-		repo: repo,
+		repo:     repo,
+		kafkaSrv: kafka,
 	}
 }
 
@@ -50,5 +54,31 @@ func (h *Handler) CreateTransaction(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if err = h.kafkaSrv.SendMessage(ctx, trans); err != nil {
+		logger.Errorf("Error sending message to Kafka: %v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
 	w.WriteHeader(http.StatusCreated)
+}
+
+func (h *Handler) GetStatistics(w http.ResponseWriter, r *http.Request) {
+	var (
+		stats *domain.Statistics
+		ctx   = r.Context()
+		err   error
+	)
+
+	if stats, err = h.repo.GetStatistics(ctx); err != nil {
+		logger.Errorf("Error getting statistics: %v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	if err = json.NewEncoder(w).Encode(stats); err != nil {
+		logger.Errorf("Error encoding statistics: %v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
