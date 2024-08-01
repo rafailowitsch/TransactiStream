@@ -54,12 +54,12 @@ curl 0.0.0.0:8009/transactions
   "timestamp": "2024-07-31T20:04:33.828556Z"
 },
 {
-"id": "6c62dz56-c74d-48ed-bb3e-16b906f2a356",
-"user_id": "124",
-"amount": 66,
-"currency": "btc",
-"done": true,
-"timestamp": "2024-09-31T20:04:33.828556Z"
+  "id": "6c62dz56-c74d-48ed-bb3e-16b906f2a356",
+  "user_id": "124",
+  "amount": 66,
+  "currency": "btc",
+  "done": true,
+  "timestamp": "2024-09-31T20:04:33.828556Z"
 }]
 ```
 
