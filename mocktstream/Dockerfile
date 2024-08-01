@@ -8,6 +8,8 @@ RUN go mod download
 
 COPY . .
 
-RUN go build -o transactistream ./cmd/main.go
+RUN go build -o mocktstream ./main.go
 
-CMD ["./transactistream"]
+RUN chmod +x mocktstream
+
+CMD ["./mocktstream"]

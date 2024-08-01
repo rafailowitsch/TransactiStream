@@ -85,7 +85,7 @@ func (p *Postgres) SetProcessedAt(ctx context.Context, id string) error {
 func (p *Postgres) ReadAll(ctx context.Context) ([]*domain.Transaction, error) {
 	var transactions []*domain.Transaction
 
-	rows, err := p.db.Query(ctx, `SELECT id, user_id, amount, currency, created_at FROM transactions`)
+	rows, err := p.db.Query(ctx, `SELECT id, user_id, amount, currency, done, created_at FROM transactions`)
 	if err != nil {
 		return nil, err
 	}
@@ -93,7 +93,7 @@ func (p *Postgres) ReadAll(ctx context.Context) ([]*domain.Transaction, error) {
 
 	for rows.Next() {
 		trans := &domain.Transaction{}
-		err = rows.Scan(&trans.ID, &trans.UserID, &trans.Amount, &trans.Currency, &trans.Timestamp)
+		err = rows.Scan(&trans.ID, &trans.UserID, &trans.Amount, &trans.Currency, &trans.Done, &trans.Timestamp)
 		if err != nil {
 			return nil, err
 		}

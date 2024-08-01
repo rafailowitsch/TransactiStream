@@ -12,19 +12,19 @@ services:
       - kafka
     networks:
       - kafka_network
-    command: >
-      /bin/sh -c "sleep 30 && ./myapp"
+    entrypoint: ["/bin/sh", "-c", "sleep 30 && ./transactistream"]
 
-  mockSrv:
-    image: mocktstream
+  mocksrv:
+    build:
+      context: ./mocktstream/
+      dockerfile: Dockerfile
     ports:
       - "8001:8001"
     depends_on:
       - app
     networks:
       - kafka_network
-    command: >
-      /bin/sh -c "sleep 5 && ./myapp"
+    entrypoint: ["/bin/sh", "-c", "sleep 35 && ./mocktstream"]
 
   postgres:
     image: postgres:latest
